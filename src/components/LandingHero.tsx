@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Camera, MapPin, MessageSquare, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
-import heroImage from "@/assets/civic-hero.jpg";
 import mobileIcon from "@/assets/mobile-reporting-icon.jpg";
 import mapIcon from "@/assets/map-tracking-icon.jpg";
 
@@ -59,15 +58,30 @@ const LandingHero = () => {
               </div>
             </div>
 
-            {/* Hero Image */}
+            {/* Hero Graphic - Replace image with icons */}
             <div className="relative animate-bounce-in">
-              <div className="relative">
-                <img 
-                  src={heroImage} 
-                  alt="Modern civic infrastructure" 
-                  className="rounded-2xl shadow-2xl w-full"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent rounded-2xl"></div>
+              <div className="relative bg-gradient-card rounded-3xl p-12 shadow-2xl">
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="text-center space-y-4">
+                    <div className="mx-auto w-20 h-20 bg-gradient-hero rounded-2xl flex items-center justify-center shadow-civic">
+                      <Camera className="h-10 w-10 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">Quick Report</h3>
+                      <p className="text-sm text-muted-foreground">Snap, describe, submit</p>
+                    </div>
+                  </div>
+                  <div className="text-center space-y-4">
+                    <div className="mx-auto w-20 h-20 bg-gradient-hero rounded-2xl flex items-center justify-center shadow-civic">
+                      <MapPin className="h-10 w-10 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">Track Progress</h3>
+                      <p className="text-sm text-muted-foreground">See real-time updates</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent rounded-3xl"></div>
               </div>
             </div>
           </div>
