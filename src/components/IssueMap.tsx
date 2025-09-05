@@ -4,15 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Filter, Calendar, AlertCircle, CheckCircle, Clock } from "lucide-react";
 
-// Mock data for demonstration
+// Mock data for Pune PCMC area (Katraj-Swargate region)
 const mockIssues = [
   {
     id: 1,
-    title: "Large pothole on Main Street",
+    title: "Large pothole on Katraj-Kondhwa Road",
     category: "pothole",
     status: "pending",
-    location: "Main Street & 2nd Ave",
-    coordinates: { lat: 40.7128, lng: -74.0060 },
+    location: "Katraj-Kondhwa Road, Near Bharati Vidyapeeth",
+    coordinates: { lat: 18.4608, lng: 73.8595 },
     reportedDate: "2024-01-15",
     photo: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
   },
@@ -21,8 +21,8 @@ const mockIssues = [
     title: "Broken street light",
     category: "streetlight",
     status: "in-progress",
-    location: "Oak Avenue",
-    coordinates: { lat: 40.7589, lng: -73.9851 },
+    location: "Swargate Bus Stand Area",
+    coordinates: { lat: 18.5018, lng: 73.8636 },
     reportedDate: "2024-01-14",
     photo: "https://images.unsplash.com/photo-1520637836862-4d197d17c89a?w=400&h=300&fit=crop",
   },
@@ -31,8 +31,8 @@ const mockIssues = [
     title: "Overflowing garbage bin",
     category: "garbage",
     status: "resolved",
-    location: "Central Park",
-    coordinates: { lat: 40.7829, lng: -73.9654 },
+    location: "Market Yard, Gultekdi",
+    coordinates: { lat: 18.4829, lng: 73.8654 },
     reportedDate: "2024-01-13",
     photo: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&h=300&fit=crop",
   },
@@ -41,8 +41,8 @@ const mockIssues = [
     title: "Damaged sidewalk",
     category: "sidewalk",
     status: "pending",
-    location: "Pine Street",
-    coordinates: { lat: 40.7505, lng: -73.9934 },
+    location: "Balaji Nagar, PCMC",
+    coordinates: { lat: 18.62, lng: 73.80 },
     reportedDate: "2024-01-12",
     photo: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400&h=300&fit=crop",
   },
@@ -102,8 +102,8 @@ const IssueMap = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Issue Map</h1>
-          <p className="text-muted-foreground">View and track civic issues in your area</p>
+          <h1 className="text-3xl font-bold text-foreground">Pune PCMC Issue Map</h1>
+          <p className="text-muted-foreground">View and track civic issues in Katraj-Swargate area</p>
         </div>
         
         {/* Filter Buttons */}
@@ -179,9 +179,9 @@ const IssueMap = () => {
                 <div className="relative z-20 space-y-4">
                   <MapPin className="h-16 w-16 text-muted-foreground mx-auto" />
                   <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">Interactive Map</h3>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">Pune PCMC Interactive Map</h3>
                     <p className="text-muted-foreground">
-                      This would be an interactive map showing all reported issues with location pins.
+                      Interactive map showing civic issues in Katraj-Swargate and PCMC areas.
                       Click on the colored dots to see issue details.
                     </p>
                   </div>

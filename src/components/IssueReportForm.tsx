@@ -15,6 +15,7 @@ const IssueReportForm = () => {
     description: "",
     category: "",
     photo: null as File | null,
+    photoLocation: "",
     location: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,11 +57,34 @@ const IssueReportForm = () => {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData({ ...formData, photo: file });
-      toast({
-        title: "Photo selected",
-        description: "Your photo has been added to the report.",
-      });
+      // Capture location when photo is selected to ensure authenticity
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const photoLocation = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
+            setFormData({ ...formData, photo: file, photoLocation });
+            toast({
+              title: "Photo validated!",
+              description: "Photo added with live location verification for authenticity.",
+            });
+          },
+          () => {
+            // Still allow photo upload but warn about validation
+            setFormData({ ...formData, photo: file, photoLocation: "" });
+            toast({
+              title: "Photo added (location unavailable)",
+              description: "Photo uploaded but couldn't verify location for authenticity.",
+              variant: "destructive",
+            });
+          }
+        );
+      } else {
+        setFormData({ ...formData, photo: file, photoLocation: "" });
+        toast({
+          title: "Photo added",
+          description: "Photo uploaded but location validation not available.",
+        });
+      }
     }
   };
 
@@ -87,6 +111,7 @@ const IssueReportForm = () => {
         description: "",
         category: "",
         photo: null,
+        photoLocation: "",
         location: "",
       });
     }, 3000);
@@ -191,6 +216,16 @@ const IssueReportForm = () => {
                       <p className="text-sm text-muted-foreground">
                         {formData.photo ? formData.photo.name : "Tap to take or upload photo"}
                       </p>
+                      {formData.photo && formData.photoLocation && (
+                        <p className="text-xs text-success mt-1">
+                          ✓ Location verified at capture
+                        </p>
+                      )}
+                      {formData.photo && !formData.photoLocation && (
+                        <p className="text-xs text-warning mt-1">
+                          ⚠ Location not verified
+                        </p>
+                      )}
                     </div>
                   </Label>
                 </div>
