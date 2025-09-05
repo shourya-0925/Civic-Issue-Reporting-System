@@ -16,13 +16,13 @@ const LandingHero = () => {
             <div className="space-y-8 animate-fade-in">
               <div className="space-y-4">
                 <h1 className="text-4xl lg:text-6xl font-bold text-foreground leading-tight">
-                  Report Civic Issues{" "}
+                  CivicPulse:{" "}
                   <span className="bg-gradient-hero bg-clip-text text-transparent">
-                    Instantly
+                    Report & Track Issues
                   </span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-lg">
-                  Help improve your community by reporting potholes, broken streetlights, 
+                  Help improve Pune's community by reporting potholes, broken streetlights, 
                   and other civic issues with just a few taps. Track progress in real-time.
                 </p>
               </div>

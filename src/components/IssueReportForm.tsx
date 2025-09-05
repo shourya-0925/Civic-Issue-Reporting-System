@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Camera, MapPin, Mic, Upload, CheckCircle } from "lucide-react";
+import { Camera, MapPin, Upload, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const IssueReportForm = () => {
@@ -252,14 +252,6 @@ const IssueReportForm = () => {
               </p>
             </div>
 
-            {/* Voice Note Placeholder */}
-            <div className="space-y-2">
-              <Label>Voice Note (Optional)</Label>
-              <Button type="button" variant="outline" className="w-full" disabled>
-                <Mic className="mr-2 h-4 w-4" />
-                Record Voice Note (Coming Soon)
-              </Button>
-            </div>
 
             {/* Submit Button */}
             <Button 

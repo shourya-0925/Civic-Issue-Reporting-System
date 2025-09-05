@@ -15,7 +15,7 @@ const Navigation = () => {
             <div className="bg-gradient-hero p-2 rounded-lg shadow-civic">
               <MapPin className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-foreground">CivicReport</span>
+            <span className="text-xl font-bold text-foreground">CivicPulse</span>
           </Link>
 
           {/* Desktop Navigation */}

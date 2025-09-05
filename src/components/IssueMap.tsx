@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Filter, Calendar, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import PuneMap from "./PuneMap";
 
 // Mock data for Pune PCMC area (Katraj-Swargate region)
 const mockIssues = [
@@ -141,70 +142,11 @@ const IssueMap = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Map Placeholder */}
+        {/* Real Pune Map */}
         <div className="lg:col-span-2">
           <Card className="h-96 lg:h-[600px]">
             <CardContent className="p-0 h-full">
-              <div className="w-full h-full bg-muted rounded-lg flex flex-col items-center justify-center text-center p-8 relative overflow-hidden">
-                {/* Map background pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="grid grid-cols-8 grid-rows-6 h-full w-full">
-                    {Array.from({ length: 48 }).map((_, i) => (
-                      <div key={i} className="border border-muted-foreground/20"></div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Map pins */}
-                <div className="absolute inset-0">
-                  {filteredIssues.map((issue, index) => (
-                    <div
-                      key={issue.id}
-                      className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all hover:scale-110 ${
-                        selectedIssue?.id === issue.id ? "scale-125 z-10" : ""
-                      }`}
-                      style={{
-                        left: `${20 + (index * 15)}%`,
-                        top: `${30 + (index * 10)}%`,
-                      }}
-                      onClick={() => setSelectedIssue(issue)}
-                    >
-                      <div className={`w-6 h-6 rounded-full ${getCategoryColor(issue.category)} border-2 border-white shadow-lg flex items-center justify-center`}>
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="relative z-20 space-y-4">
-                  <MapPin className="h-16 w-16 text-muted-foreground mx-auto" />
-                  <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">Pune PCMC Interactive Map</h3>
-                    <p className="text-muted-foreground">
-                      Interactive map showing civic issues in Katraj-Swargate and PCMC areas.
-                      Click on the colored dots to see issue details.
-                    </p>
-                  </div>
-                  <div className="flex justify-center gap-2 text-xs">
-                    <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 bg-destructive rounded-full"></div>
-                      <span>Pothole</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 bg-warning rounded-full"></div>
-                      <span>Light</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 bg-success rounded-full"></div>
-                      <span>Garbage</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 bg-accent rounded-full"></div>
-                      <span>Sidewalk</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <PuneMap />
             </CardContent>
           </Card>
         </div>
