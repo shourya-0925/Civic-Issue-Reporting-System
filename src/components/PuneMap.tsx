@@ -1,9 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+
+// Fix Leaflet default icons
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 // Mock data for Pune PCMC area
 const mockIssues = [
@@ -51,10 +58,9 @@ const mockIssues = [
 
 const PuneMap = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
-  const [showTokenInput, setShowTokenInput] = useState(true);
+  const map = useRef<L.Map | null>(null);
   const [selectedIssue, setSelectedIssue] = useState<typeof mockIssues[0] | null>(null);
+  const markers = useRef<L.Marker[]>([]);
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -66,108 +72,86 @@ const PuneMap = () => {
     }
   };
 
-  const initializeMap = () => {
-    if (!mapContainer.current || !mapboxToken) return;
-
-    mapboxgl.accessToken = mapboxToken;
-    
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [73.8567, 18.5204], // Pune center
-      zoom: 11
+  const createCustomIcon = (category: string) => {
+    const color = getCategoryColor(category);
+    return L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: ${color};
+        border: 3px solid white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: white;
+        font-weight: bold;
+      ">●</div>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
     });
+  };
 
-    // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+  const initializeMap = () => {
+    if (!mapContainer.current) return;
+
+    // Initialize Leaflet map
+    map.current = L.map(mapContainer.current).setView([18.5204, 73.8567], 11);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(map.current);
+
+    // Clear existing markers
+    markers.current.forEach(marker => marker.remove());
+    markers.current = [];
 
     // Add markers for issues
     mockIssues.forEach((issue) => {
-      const markerEl = document.createElement('div');
-      markerEl.className = 'marker';
-      markerEl.style.backgroundColor = getCategoryColor(issue.category);
-      markerEl.style.width = '20px';
-      markerEl.style.height = '20px';
-      markerEl.style.borderRadius = '50%';
-      markerEl.style.border = '3px solid white';
-      markerEl.style.cursor = 'pointer';
-      markerEl.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+      const customIcon = createCustomIcon(issue.category);
+      
+      const marker = L.marker([issue.coordinates[1], issue.coordinates[0]], {
+        icon: customIcon
+      }).addTo(map.current!);
 
-      const marker = new mapboxgl.Marker(markerEl)
-        .setLngLat(issue.coordinates as [number, number])
-        .addTo(map.current!);
+      // Add popup
+      const popupContent = `
+        <div class="p-3 min-w-[200px]">
+          <h4 class="font-semibold text-sm mb-1">${issue.title}</h4>
+          <p class="text-xs text-gray-600 mb-2">${issue.location}</p>
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-medium capitalize px-2 py-1 rounded" style="background-color: ${getCategoryColor(issue.category)}; color: white;">
+              ${issue.category}
+            </span>
+            <span class="text-xs capitalize">${issue.status.replace('-', ' ')}</span>
+          </div>
+        </div>
+      `;
+
+      marker.bindPopup(popupContent);
 
       // Add click event
-      markerEl.addEventListener('click', () => {
+      marker.on('click', () => {
         setSelectedIssue(issue);
       });
 
-      // Add popup on hover
-      const popup = new mapboxgl.Popup({
-        offset: 25,
-        closeButton: false,
-        closeOnClick: false
-      }).setHTML(`
-        <div class="p-2">
-          <h4 class="font-semibold text-sm">${issue.title}</h4>
-          <p class="text-xs text-gray-600">${issue.location}</p>
-          <p class="text-xs font-medium capitalize">${issue.status}</p>
-        </div>
-      `);
-
-      markerEl.addEventListener('mouseenter', () => {
-        popup.addTo(map.current!);
-        marker.setPopup(popup);
-        popup.addTo(map.current!);
-      });
-
-      markerEl.addEventListener('mouseleave', () => {
-        popup.remove();
-      });
+      markers.current.push(marker);
     });
   };
 
-  const handleTokenSubmit = () => {
-    if (mapboxToken.trim()) {
-      setShowTokenInput(false);
-      setTimeout(initializeMap, 100);
-    }
-  };
-
   useEffect(() => {
+    initializeMap();
+    
     return () => {
+      markers.current.forEach(marker => marker.remove());
       map.current?.remove();
     };
   }, []);
-
-  if (showTokenInput) {
-    return (
-      <div className="h-96 lg:h-[600px] flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Mapbox Token Required</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              To display the interactive Pune map, please enter your Mapbox public token.
-              Get one free at <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a>
-            </p>
-            <div className="space-y-2">
-              <Input
-                type="text"
-                placeholder="pk.eyJ1IjoieW91ci11c2VybmFtZSI..."
-                value={mapboxToken}
-                onChange={(e) => setMapboxToken(e.target.value)}
-              />
-              <Button onClick={handleTokenSubmit} className="w-full">
-                Load Map
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="relative h-96 lg:h-[600px]">
