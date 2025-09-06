@@ -158,7 +158,7 @@ const LandingHero = () => {
                 </Button>
               </Link>
               <Link to="/map">
-                <Button variant="outline" size="xl" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary">
+                <Button variant="secondary" size="xl" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90">
                   Explore Issues
                 </Button>
               </Link>
