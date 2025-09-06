@@ -114,8 +114,8 @@ const Chatbot = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-80 h-96 shadow-xl z-50 bg-background border">
-          <CardHeader className="pb-3 bg-primary text-white rounded-t-lg">
+        <Card className="fixed bottom-6 right-6 w-80 h-96 shadow-xl z-50 bg-background border flex flex-col">
+          <CardHeader className="pb-3 bg-primary text-white rounded-t-lg flex-shrink-0">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Bot className="h-4 w-4" />
@@ -132,41 +132,43 @@ const Chatbot = () => {
             </div>
           </CardHeader>
           
-          <CardContent className="p-0 flex flex-col h-full">
-            <ScrollArea className="flex-1 p-4 space-y-3">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={cn(
-                    "flex gap-2 mb-3",
-                    message.isBot ? "justify-start" : "justify-end"
-                  )}
-                >
-                  {message.isBot && (
-                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                      <Bot className="h-3 w-3 text-white" />
-                    </div>
-                  )}
+          <div className="flex flex-col flex-1 min-h-0">
+            <ScrollArea className="flex-1 p-4">
+              <div className="space-y-3">
+                {messages.map((message) => (
                   <div
+                    key={message.id}
                     className={cn(
-                      "max-w-[220px] rounded-lg px-3 py-2 text-sm",
-                      message.isBot
-                        ? "bg-muted text-foreground"
-                        : "bg-primary text-white"
+                      "flex gap-2 mb-3",
+                      message.isBot ? "justify-start" : "justify-end"
                     )}
                   >
-                    {message.text}
-                  </div>
-                  {!message.isBot && (
-                    <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-1">
-                      <User className="h-3 w-3" />
+                    {message.isBot && (
+                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
+                        <Bot className="h-3 w-3 text-white" />
+                      </div>
+                    )}
+                    <div
+                      className={cn(
+                        "max-w-[220px] rounded-lg px-3 py-2 text-sm",
+                        message.isBot
+                          ? "bg-muted text-foreground"
+                          : "bg-primary text-white"
+                      )}
+                    >
+                      {message.text}
                     </div>
-                  )}
-                </div>
-              ))}
+                    {!message.isBot && (
+                      <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-1">
+                        <User className="h-3 w-3" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </ScrollArea>
 
-            <div className="border-t p-4">
+            <div className="border-t p-4 flex-shrink-0 bg-background">
               <div className="flex gap-2">
                 <Input
                   value={inputMessage}
@@ -184,7 +186,7 @@ const Chatbot = () => {
                 </Button>
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
       )}
     </>
