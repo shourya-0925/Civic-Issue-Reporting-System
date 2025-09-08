@@ -4,9 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, FileText, MapPin, Calendar, Plus, TrendingUp, Clock } from "lucide-react";
+import { User, FileText, MapPin, Calendar, Plus, TrendingUp, Clock, Trophy, Award } from "lucide-react";
 import ReportCard from "./ReportCard";
+import GamificationStats from "./GamificationStats";
+import BadgeDisplay from "./BadgeDisplay";
 import { Link } from "react-router-dom";
+import { mockUserGamification, mockBadges } from "@/data/gamificationData";
 
 // Mock user data
 const mockUser = {
@@ -138,8 +141,10 @@ const UserDashboard = () => {
 
       {/* Main Content Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="gamification">Rewards</TabsTrigger>
+          <TabsTrigger value="badges">Badges</TabsTrigger>
           <TabsTrigger value="all">All Reports</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="resolved">Resolved</TabsTrigger>
@@ -206,6 +211,29 @@ const UserDashboard = () => {
               ))}
             </div>
           </div>
+        </TabsContent>
+
+        {/* Gamification Tab */}
+        <TabsContent value="gamification" className="space-y-6">
+          <GamificationStats userStats={mockUserGamification} />
+        </TabsContent>
+
+        {/* Badges Tab */}
+        <TabsContent value="badges" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-primary" />
+                Your Achievements
+              </CardTitle>
+              <CardDescription>
+                Collect badges by being an active community member!
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BadgeDisplay badges={mockBadges} showProgress={true} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* All Reports Tab */}

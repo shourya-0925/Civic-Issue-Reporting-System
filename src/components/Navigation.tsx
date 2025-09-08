@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MapPin, Menu, X, User, FileText, Home } from "lucide-react";
+import { MapPin, Menu, X, User, FileText, Home, Trophy } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Navigation = () => {
@@ -36,6 +36,12 @@ const Navigation = () => {
               <Button variant="ghost" className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
                 <span>View Map</span>
+              </Button>
+            </Link>
+            <Link to="/leaderboard">
+              <Button variant="ghost" className="flex items-center space-x-2">
+                <Trophy className="h-4 w-4" />
+                <span>Leaderboard</span>
               </Button>
             </Link>
             <Link to="/dashboard">
@@ -83,6 +89,12 @@ const Navigation = () => {
                 <Button variant="ghost" className="w-full justify-start">
                   <MapPin className="h-4 w-4 mr-2" />
                   View Map
+                </Button>
+              </Link>
+              <Link to="/leaderboard" onClick={() => setIsOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start">
+                  <Trophy className="h-4 w-4 mr-2" />
+                  Leaderboard
                 </Button>
               </Link>
               <Link to="/dashboard" onClick={() => setIsOpen(false)}>
