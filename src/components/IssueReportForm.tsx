@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Camera, MapPin, Upload, CheckCircle } from "lucide-react";
+import { Camera, MapPin, Upload, CheckCircle, Video, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const IssueReportForm = () => {
@@ -16,10 +16,15 @@ const IssueReportForm = () => {
     category: "",
     photo: null as File | null,
     photoLocation: "",
+    photoTimestamp: "",
     location: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
   const categories = [
@@ -32,60 +37,115 @@ const IssueReportForm = () => {
     { value: "other", label: "Other", color: "bg-muted" },
   ];
 
-  const handleLocationCapture = () => {
+  // Auto-capture location on component mount
+  useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const location = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
-          setFormData({ ...formData, location });
+          setFormData(prev => ({ ...prev, location }));
           toast({
-            title: "Location captured!",
-            description: "Your current location has been added to the report.",
+            title: "Location detected!",
+            description: "Your current location has been automatically captured.",
           });
         },
         () => {
           toast({
-            title: "Location access denied",
-            description: "Please enable location services or enter manually.",
+            title: "Location access required",
+            description: "Please enable location services to continue.",
             variant: "destructive",
           });
         }
       );
     }
+  }, []);
+
+  const openCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: false
+      });
+      setStream(mediaStream);
+      setIsCameraOpen(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (error) {
+      toast({
+        title: "Camera access denied",
+        description: "Please allow camera access to capture photos.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Capture location when photo is selected to ensure authenticity
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const photoLocation = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
-            setFormData({ ...formData, photo: file, photoLocation });
-            toast({
-              title: "Photo validated!",
-              description: "Photo added with live location verification for authenticity.",
-            });
-          },
-          () => {
-            // Still allow photo upload but warn about validation
-            setFormData({ ...formData, photo: file, photoLocation: "" });
-            toast({
-              title: "Photo added (location unavailable)",
-              description: "Photo uploaded but couldn't verify location for authenticity.",
-              variant: "destructive",
-            });
-          }
-        );
-      } else {
-        setFormData({ ...formData, photo: file, photoLocation: "" });
-        toast({
-          title: "Photo added",
-          description: "Photo uploaded but location validation not available.",
-        });
-      }
+  const closeCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
     }
+    setIsCameraOpen(false);
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const video = videoRef.current;
+      const context = canvas.getContext('2d');
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context?.drawImage(video, 0, 0);
+
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const timestamp = new Date().toISOString();
+          const file = new File([blob], `civic-report-${timestamp}.jpg`, { type: 'image/jpeg' });
+          
+          // Capture location when photo is taken
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const photoLocation = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
+                setFormData(prev => ({ 
+                  ...prev, 
+                  photo: file, 
+                  photoLocation,
+                  photoTimestamp: timestamp
+                }));
+                toast({
+                  title: "Photo captured!",
+                  description: "Photo taken with live location and timestamp verification.",
+                });
+              },
+              () => {
+                setFormData(prev => ({ 
+                  ...prev, 
+                  photo: file,
+                  photoTimestamp: timestamp
+                }));
+                toast({
+                  title: "Photo captured (location unavailable)",
+                  description: "Photo taken but couldn't verify location.",
+                  variant: "destructive",
+                });
+              }
+            );
+          }
+          closeCamera();
+        }
+      }, 'image/jpeg', 0.9);
+    }
+  };
+
+  const removePhoto = () => {
+    setFormData(prev => ({ 
+      ...prev, 
+      photo: null, 
+      photoLocation: "", 
+      photoTimestamp: "" 
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,6 +172,7 @@ const IssueReportForm = () => {
         category: "",
         photo: null,
         photoLocation: "",
+        photoTimestamp: "",
         location: "",
       });
     }, 3000);
@@ -197,58 +258,105 @@ const IssueReportForm = () => {
               />
             </div>
 
-            {/* Photo Upload */}
+            {/* Live Photo Capture */}
             <div className="space-y-2">
-              <Label htmlFor="photo">Photo (Optional)</Label>
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <Input
-                    id="photo"
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                  />
-                  <Label htmlFor="photo" className="cursor-pointer">
-                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
-                      <Camera className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        {formData.photo ? formData.photo.name : "Tap to take or upload photo"}
-                      </p>
-                      {formData.photo && formData.photoLocation && (
-                        <p className="text-xs text-success mt-1">
-                          ✓ Location verified at capture
-                        </p>
-                      )}
-                      {formData.photo && !formData.photoLocation && (
-                        <p className="text-xs text-warning mt-1">
-                          ⚠ Location not verified
-                        </p>
-                      )}
+              <Label>Live Photo Capture (Required)</Label>
+              {!formData.photo ? (
+                <div className="space-y-4">
+                  {!isCameraOpen ? (
+                    <Button 
+                      type="button" 
+                      onClick={openCamera}
+                      className="w-full border-2 border-dashed border-border rounded-lg p-6 hover:border-primary transition-colors"
+                      variant="outline"
+                    >
+                      <Camera className="mr-2 h-8 w-8" />
+                      <div className="text-center">
+                        <p className="text-sm font-medium">Take Live Photo</p>
+                        <p className="text-xs text-muted-foreground">Camera capture only - no gallery uploads</p>
+                      </div>
+                    </Button>
+                  ) : (
+                    <div className="relative rounded-lg overflow-hidden bg-black">
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        className="w-full h-64 object-cover"
+                      />
+                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                        <Button
+                          type="button"
+                          onClick={capturePhoto}
+                          className="rounded-full w-16 h-16 bg-white hover:bg-gray-100"
+                          variant="outline"
+                        >
+                          <Camera className="h-6 w-6 text-black" />
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={closeCamera}
+                          className="rounded-full w-12 h-12"
+                          variant="outline"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </Label>
+                  )}
                 </div>
-              </div>
+              ) : (
+                <div className="border-2 border-border rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Camera className="h-5 w-5 text-success" />
+                      <div>
+                        <p className="text-sm font-medium">Photo captured</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formData.photoTimestamp && `Taken: ${new Date(formData.photoTimestamp).toLocaleString()}`}
+                        </p>
+                        {formData.photoLocation && (
+                          <p className="text-xs text-success">
+                            ✓ Location: {formData.photoLocation}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={removePhoto}
+                      variant="ghost"
+                      size="sm"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+              <canvas ref={canvasRef} className="hidden" />
             </div>
 
-            {/* Location */}
+            {/* Auto-detected Location */}
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="location"
-                  placeholder="Location coordinates or address"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  required
-                />
-                <Button type="button" variant="outline" onClick={handleLocationCapture}>
-                  <MapPin className="h-4 w-4" />
-                </Button>
+              <Label>Auto-detected Location</Label>
+              <div className="border-2 border-border rounded-lg p-4">
+                {formData.location ? (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-success" />
+                    <div>
+                      <p className="text-sm font-medium">Current Location</p>
+                      <p className="text-xs text-muted-foreground">{formData.location}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="h-5 w-5" />
+                    <p className="text-sm">Detecting location...</p>
+                  </div>
+                )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Click the location button to auto-detect your current position
+                Location is automatically detected for report accuracy
               </p>
             </div>
 
