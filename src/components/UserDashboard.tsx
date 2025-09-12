@@ -13,8 +13,8 @@ import { mockUserGamification, mockBadges } from "@/data/gamificationData";
 
 // Mock user data
 const mockUser = {
-  name: "John Doe",
-  email: "john.doe@email.com",
+  name: "Rahul Patil",
+  email: "rahul.patil@email.com",
   avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
   joinDate: "2023-08-15",
   totalReports: 12,
@@ -27,11 +27,11 @@ const mockUser = {
 const mockReports = [
   {
     id: "CR-2024-001",
-    title: "Large pothole on Main Street",
+    title: "Large pothole on FC Road",
     description: "There's a large pothole that's been growing in size. It's causing damage to vehicles and is a safety hazard for cyclists.",
     category: "pothole",
     status: "resolved" as const,
-    location: "Main Street & 2nd Ave",
+    location: "FC Road & JM Road Junction",
     photo: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
     reportedDate: "2024-01-15",
     updatedDate: "2024-01-20",
@@ -42,7 +42,7 @@ const mockReports = [
     description: "Street light has been out for several days, making the area unsafe for pedestrians at night.",
     category: "streetlight",
     status: "in-progress" as const,
-    location: "Oak Avenue",
+    location: "MG Road, Camp Area",
     photo: "https://images.unsplash.com/photo-1520637836862-4d197d17c89a?w=400&h=300&fit=crop",
     reportedDate: "2024-01-14",
     updatedDate: "2024-01-18",
@@ -53,7 +53,7 @@ const mockReports = [
     description: "Garbage bin has been overflowing for several days, attracting pests and creating unpleasant odors.",
     category: "garbage",
     status: "pending" as const,
-    location: "Central Park",
+    location: "Shaniwar Peth Market",
     photo: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&h=300&fit=crop",
     reportedDate: "2024-01-13",
   },
@@ -63,7 +63,7 @@ const mockReports = [
     description: "Sidewalk has several cracks and uneven surfaces that pose a tripping hazard.",
     category: "sidewalk",
     status: "pending" as const,
-    location: "Pine Street",
+    location: "Koregaon Park",
     photo: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400&h=300&fit=crop",
     reportedDate: "2024-01-12",
   },
